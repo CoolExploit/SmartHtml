@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Obfuscator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            background-color: #282c34;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+        .buttons, .options {
+            margin-bottom: 20px;
+        }
+        .buttons button, .options button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .buttons button:hover, .options button:hover {
+            background-color: #0056b3;
+        }
+        #download {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #download:hover {
+            background-color: #218838;
+        }
+        #output {
+            background-color: #e9ecef;
+            height: 150px;
+            color: #000;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Code Obfuscator</h1>
+        
+        <div id="codeSection" class="hidden">
+            <label for="input">Enter your code:</label>
+            <textarea id="input" placeholder="Paste your code here"></textarea>
+        </div>
+        
+        <div class="buttons">
+            <button onclick="toggleAdvanced()">Advanced Obfuscator</button>
+            <button onclick="toggleSettings()">Settings</button>
+        </div>
+
+        <div id="advancedSection" class="hidden">
+            <h2>Advanced Obfuscator</h2>
+            <div class="buttons">
+                <button onclick="setOption('normal')">Normal</button>
+                <button onclick="setOption('strong')">Strong</button>
+                <button onclick="setOption('high')">High</button>
+                <button onclick="setOption('max')">Max</button>
+                <button onclick="setOption('hex')">Hex</button>
+                <button onclick="setOption('unicode')">Unicode</button>
+            </div>
+            
+            <div class="options">
+                <button onclick="toggleOutput()">Toggle Obfuscated Code Preview</button>
+            </div>
+            
+            <button id="download" onclick="downloadObfuscated()">Download Obfuscated Code</button>
+            
+            <label for="output">Obfuscated Code:</label>
+            <textarea id="output" readonly class="hidden"></textarea>
+        </div>
+
+        <div id="settingsSection" class="hidden">
+            <h2>Settings</h2>
+            <div class="options">
+                <label for="debugger">Debugger:</label>
+                <input type="checkbox" id="debugger" checked>
+            </div>
+            <!-- Add more settings here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <script>
+        const identifiersToObfuscate = [
+            "Local", "Visible", "Script", "Game", "Parent", "Humanoid",
+            "ReplicatedStorage", "ReplicatedFirst", "StarterGui", "CoreGui",
+            "StarterPlayer", "StarterCharacterScripts", "StarterPlayerScripts",
+            "Function", "Destroy", "WaitForChild", "ScreenGui", "Frame",
+            "ImageLabel", "ImageButton", "TextButton", "TextBox"
+        ];
+
+        let obfuscationOptions = {
+            compact: true,
+            controlFlowFlattening: false,
+            deadCodeInjection: false,
+            debugProtection: false,
+            disableConsoleOutput: false,
+            identifierNamesGenerator: 'hexadecimal',
+            renameGlobals: false,
+            rotateStringArray: true,
+            selfDefending: false,
+            stringArray: true,
+            stringArrayEncoding: ['rc4'],
+            stringArrayThreshold: 0.75,
+            transformObjectKeys: true,
+            unicodeEscapeSequence: false,
+            target: 'browser'
+        };
+
+        function toggleAdvanced() {
+            const advancedSection = document.getElementById('advancedSection');
+            advancedSection.classList.toggle('hidden');
+            if (!advancedSection.classList.contains('hidden')) {
+                document.getElementById('codeSection').classList.remove('hidden');
+            } else {
+                document.getElementById('codeSection').classList.add('hidden');
+            }
+        }
+
+        function toggleSettings() {
+            const settingsSection = document.getElementById('settingsSection');
+            settingsSection.classList.toggle('hidden');
+        }
+
+        function setOption(option) {
+            switch (option) {
+                case 'normal':
+                    obfuscationOptions = {
+                        ...obfuscationOptions,
+                        controlFlowFlattening: false,
+                        deadCodeInjection: false,
+                        stringArray: false,
+                        stringArrayEncoding: [],
+                        unicodeEscapeSequence: false
+                    };
+                    break;
+                case 'strong':
+                    obfuscationOptions = {
+                        ...obfuscationOptions,
+                        controlFlowFlattening: true,
+                        deadCodeInjection: true,
+                        stringArray: true,
+                        stringArrayEncoding: ['rc4'],
+                        unicodeEscapeSequence: false
+                    };
+                    break;
+                case 'high':
+                    obfuscationOptions = {
+                        ...obfuscationOptions,
+                        controlFlowFlattening: true,
+                        deadCodeInjection: true,
+                        stringArray: true,
+                        stringArrayEncoding: ['base64'],
+                        unicodeEscapeSequence: false
+                    };
+                    break;
+                case 'max':
+                    obfuscationOptions = {
+                        ...obfuscationOptions,
+                        controlFlowFlattening: true,
+                        deadCodeInjection: true,
+                        stringArray: true,
+                        stringArrayEncoding: ['base64'],
+                        unicodeEscapeSequence: true
+                    };
+                    break;
+                case 'hex':
+                    obfuscationOptions.identifierNamesGenerator = 'hexadecimal';
+                    break;
+                case 'unicode':
+                    obfuscationOptions.identifierNamesGenerator = 'mangled';
+                    obfuscationOptions.unicodeEscapeSequence = true;
+                    break;
+            }
+        }
+
+        function toggleOutput() {
+            const outputElement = document.getElementById('output');
+            if (outputElement.style.display === 'none') {
+                const inputCode = document.getElementById('input').value;
+                const obfuscatedCode = obfuscate(inputCode);
+                outputElement.value = obfuscatedCode;
+                outputElement.style.display = 'block';
+            } else {
+                outputElement.style.display = 'none';
+            }
+        }
+
+        function downloadObfuscated() {
+            const inputCode = document.getElementById('input').value;
+            try {
+                const obfuscatedCode = obfuscate(inputCode);
+                const blob = new Blob([obfuscatedCode], {type: "text/plain"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "obfuscated_code.txt";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Error during obfuscation:', e);
+            }
+        }
+
+        function obfuscate(code) {
+            const obfuscatedIdentifiers = {};
+
+            identifiersToObfuscate.forEach(identifier => {
+                const obfuscatedIdentifier = JavaScriptObfuscator.obfuscate(identifier, obfuscationOptions).getObfuscatedCode();
+                obfuscatedIdentifiers[identifier] = obfuscatedIdentifier.replace(/"/g, '');
+            });
+
+            let obfuscatedCode = code;
+            for (const [identifier, obfuscatedIdentifier] of Object.entries(obfuscatedIdentifiers)) {
+                const regex = new RegExp(`\\b${identifier}\\b`, 'g');
+                obfuscatedCode = obfuscatedCode.replace(regex, obfuscatedIdentifier);
+            }
+
+            return JavaScriptObfuscator.obfuscate(obfuscatedCode, obfuscationOptions).getObfuscatedCode();
+        }
+
+        // Debugger Functionality
+        window.addEventListener('error', function (event) {
+            const debuggerCheckbox = document.getElementById('debugger');
+            if (!debuggerCheckbox.checked) {
+                console.warn('An error occurred:', event.message);
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }, true);
+    </script>
+</body>
+</html>
